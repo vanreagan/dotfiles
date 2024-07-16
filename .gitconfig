@@ -1,6 +1,11 @@
 [core]
-	editor = code --wait
+        editor = code --wait
 [user]
-	name = vanreagan
-	email = 103523086+vanreagan@users.noreply.github.com
-	username = vanreagan
+        name = vanreagan
+        username = vanreagan
+        email = 103523086+vanreagan@users.noreply.github.com
+        signingkey = ~/.ssh/id_ed25519.pub
+[gpg]
+        format = ssh
+[commit]
+        gpgsign = true
