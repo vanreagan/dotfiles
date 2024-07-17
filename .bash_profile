@@ -4,4 +4,6 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # oh my posh bootstrap
-eval "$(oh-my-posh init bash --config 'https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/themes/tokyonight_storm.omp.json')"
+eval "$(oh-my-posh init bash --config '/home/vanreagan/dotfiles/omp_theme.json')"
+
+neofetch
