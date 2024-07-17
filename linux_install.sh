@@ -38,7 +38,8 @@ create_symlink "$SCRIPT_DIR/.gitconfig" ~/.gitconfig
 create_symlink "$SCRIPT_DIR/.bash_profile" ~/.bash_profile
 create_symlink "$SCRIPT_DIR/.bashrc" ~/.bashrc
 create_symlink "$SCRIPT_DIR/.bash_logout" ~/.bash_logout
+create_symlink "$SCRIPT_DIR/.zshrc" ~/.zshrc
 
 # Reload .bashrc to apply changes (only affects the current terminal session)
-echo "Reloading .bashrc to apply changes"
-source ~/.bashrc
+# echo "Reloading .bashrc to apply changes"
+# source ~/.bashrc
