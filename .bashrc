@@ -125,3 +125,4 @@ export NVM_DIR="$HOME/.nvm"
 
 # oh my posh bootstrap
 eval "$(oh-my-posh init bash --config 'https://github.com/JanDeDobbeleer/oh-my-posh/raw/main/themes/tokyonight_storm.omp.json')"
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
