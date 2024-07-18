@@ -4,7 +4,7 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: File:        windows_install.cmd
 :: Creator:     vanreagan
-:: Date:        11/03/2023
+:: Date:        18/07/2024
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 setlocal enableextensions enabledelayedexpansion
 set me=%~n0
@@ -13,12 +13,18 @@ set parent=%~dp0
 :: C O N F I G U R A T I O N
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+set "SOURCE_PATH=%parent%settings.json"
+set "TARGET_PATH=%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: M A I N
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :start
-	mklink "%USERPROFILE%\.bash_profile" "%USERPROFILE%\.dotfiles\.bash_profile"
-	mklink "%USERPROFILE%\.gitconfig" "%USERPROFILE%\.dotfiles\.gitconfig"
+	@REM Delete the existing settings.json if it exists to avoid conflict
+	if exist "%TARGET_PATH%" del "%TARGET_PATH%"
+
+	@REM Create a symbolic link to the settings.json file
+	mklink "%TARGET_PATH%" "%SOURCE_PATH%"
 
 :end
 	pause
