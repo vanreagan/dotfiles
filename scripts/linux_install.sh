@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get the absolute directory of the script
-SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+SCRIPT_DIR=$(dirname "$(dirname "$(readlink -f "$0")")")/config
 
 echo "Script running from $SCRIPT_DIR"
 
@@ -40,6 +40,4 @@ create_symlink "$SCRIPT_DIR/.bashrc" ~/.bashrc
 create_symlink "$SCRIPT_DIR/.bash_logout" ~/.bash_logout
 create_symlink "$SCRIPT_DIR/.zshrc" ~/.zshrc
 
-# Reload .bashrc to apply changes (only affects the current terminal session)
-# echo "Reloading .bashrc to apply changes"
-# source ~/.bashrc
+echo "Symlinks created successfully"
