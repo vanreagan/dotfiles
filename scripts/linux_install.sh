@@ -1,5 +1,34 @@
 #!/bin/bash
 
+# [Linux]
+
+# Manual
+# 	Clone dotfiles repo
+
+# Script should do:
+
+# 	Install zsh
+# 	Set zsh as default shell for profile
+# 	Install config dependencies (fzf, neofetch, zoxide)
+# 	Install Oh My Posh (or any other terminal prompts if changed in the future)
+# 	Create symlinks for the config files (gitconfig, zshrc)
+# 	Create ssh key with ed25519 algorithm ssh-keygen -t ed25519 -C "your_email@example.com"
+# 	Add that ssh key to ssh-agent
+# 	Let user know they need to add the key to their github account
+
+# Manual
+# 	Add public key to github both on auth and sign
+
+# Environment setup Script:
+
+# 	Update apt and apt-get repositories
+# 	Install nvm
+# 		Install node current LTS
+# 	Install docker ce
+
+
+
+
 # Get the absolute directory of the script
 SCRIPT_DIR=$(dirname "$(dirname "$(readlink -f "$0")")")/config
 
