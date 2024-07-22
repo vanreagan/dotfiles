@@ -1,50 +1,88 @@
+# [Windows]
+
+# Manual
+# 	Install winget in case it isn't already
+# 	Install Git
+# 	Clone dotfiles repo
+
+# Script should do:
+
+# 	Install Windows Terminal
+# 	Install New Powershell
+# 	Install WSL2
+# 	Install Nerdfont
+# 	Install VSCode
+# 	Create symlink for Windows Terminal settings.json
+# 	Create symlinks for gitconfig
+
+# * Functions
+
+function CheckWingetInstallation {
+	param(
+		[string]$programId
+	)
+
+	$installed = winget --list --id $programId
+	if ($installed -match $programId) {
+		Write-Host "$programId is already installed. Checking for updates..."
+		winget upgrade --id $programId --source winget
+	} else {
+		Write-Host "Installing $programId"
+		winget install --id $programId --source winget
+	}
+}
+
+function InstallNerdFont {
+	param(
+		[string]$nerdFontName,
+		[string]$nerdFontVersion
+	)
+
+	$nerdFontUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/$nerdFontVersion/$nerdFontName.zip"
+	$fontZipPath = "$env:USERPROFILE\Downloads\$nerdFontName.zip"
+	$fontExtractPath = "$env:USERPROFILE\Downloads\$nerdFontName"
+
+	Write-Host "Downloading Nerd Font..."
+	Invoke-WebRequest -Uri $nerdFontUrl -OutFile $fontZipPath
+
+	# Extract Nerd Font
+	Write-Host "Extracting Nerd Font..."
+	Expand-Archive -Path $fontZipPath -DestinationPath $fontExtractPath
+
+	# Install Nerd Font
+	Write-Host "Installing Nerd Font..."
+	$fontFiles = Get-ChildItem -Path $fontExtractPath -Filter *.ttf
+	foreach ($fontFile in $fontFiles) {
+		Copy-Item -Path $fontFile.FullName -Destination "$env:SystemRoot\Fonts"
+		$fontRegKey = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+		$fontRegValueName = [System.IO.Path]::GetFileNameWithoutExtension($fontFile.Name)
+		$fontRegValue = $fontFile.Name
+		Set-ItemProperty -Path $fontRegKey -Name $fontRegValueName -Value $fontRegValue
+	}
+
+	Write-Host "Nerd Font installation complete."
+
+	# Clean up
+	Write-Host "Cleaning up..."
+	Remove-Item -Path $fontZipPath
+	Remove-Item -Path $fontExtractPath -Recurse
+}
+
+# * Main Script
+
 Write-Host "Starting Windows Setup..."
+
+Write-Host "Installing Windows Terminal"
+
+CheckWingetInstallation "Microsoft.WindowsTerminal"
 
 Write-Host "Installing New Microsoft PowerShell"
 
+CheckWingetInstallation "Microsoft.Powershell"
 
-# # Install PowerShell
-# winget install --id Microsoft.Powershell --source winget
+Write-Host "Installing Nerd Fonts"
 
-# Check if PowerShell is already installed and update if necessary
-$psInstalled = winget list --id Microsoft.Powershell
-if ($psInstalled -match "Microsoft.Powershell") {
-    Write-Host "PowerShell is already installed. Checking for updates..."
-    winget upgrade --id Microsoft.Powershell --source winget
-} else {
-    Write-Host "Installing New Microsoft PowerShell"
-    winget install --id Microsoft.Powershell --source winget
-}
-
-# Download Nerd Font
-$nerdFontUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/Hack.zip"
-$fontZipPath = "$env:USERPROFILE\Downloads\Hack.zip"
-$fontExtractPath = "$env:USERPROFILE\Downloads\Hack"
-
-Write-Host "Downloading Nerd Font..."
-Invoke-WebRequest -Uri $nerdFontUrl -OutFile $fontZipPath
-
-# Extract Nerd Font
-Write-Host "Extracting Nerd Font..."
-Expand-Archive -Path $fontZipPath -DestinationPath $fontExtractPath
-
-# Install Nerd Font
-Write-Host "Installing Nerd Font..."
-$fontFiles = Get-ChildItem -Path $fontExtractPath -Filter *.ttf
-foreach ($fontFile in $fontFiles) {
-    Copy-Item -Path $fontFile.FullName -Destination "$env:SystemRoot\Fonts"
-    $fontRegKey = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
-    $fontRegValueName = [System.IO.Path]::GetFileNameWithoutExtension($fontFile.Name)
-    $fontRegValue = $fontFile.Name
-    Set-ItemProperty -Path $fontRegKey -Name $fontRegValueName -Value $fontRegValue
-}
-
-Write-Host "Nerd Font installation complete."
-
-# Clean up
-Write-Host "Cleaning up..."
-Remove-Item -Path $fontZipPath
-Remove-Item -Path $fontExtractPath -Recurse
+InstallNerdFont "Hack" "v3.2.1"
 
 
 # Create symlink for Windows Terminal settings.json
@@ -71,7 +109,6 @@ if ($args.Count -eq 0) {
 $SOURCE_PATH = Join-Path $parent "config\settings.json"
 $TARGET_PATH = Join-Path $USER_LOCALAPPDATA "Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 
-# Main
 # Delete the existing settings.json if it exists to avoid conflict
 if (Test-Path $TARGET_PATH) {
     Remove-Item $TARGET_PATH
@@ -80,16 +117,9 @@ if (Test-Path $TARGET_PATH) {
 # Create a symbolic link to the settings.json file
 New-Item -ItemType SymbolicLink -Path $TARGET_PATH -Target $SOURCE_PATH
 
-
 # Check if VS Code is already installed and update if necessary
-$vscInstalled = winget list --id Microsoft.Powershell
-if ($vscInstalled -match "Microsoft.Powershell") {
-    Write-Host "VS Code is already installed. Checking for updates..."
-    winget upgrade --id Microsoft.VisualStudioCode --source winget
-} else {
-    Write-Host "Installing Visual Studio Code"
-    winget install -e --id Microsoft.VisualStudioCode --source winget
-}
+Write-Host "Installing Visual Studio Code"
+CheckWingetInstallation "Microsoft.VisualStudioCode"
 
 # Install WSL2
 # Check if WSL is already installed by listing installed distributions
