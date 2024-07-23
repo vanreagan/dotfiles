@@ -4,8 +4,6 @@
 
 First off, some manual steps.
 
-Install Windows Terminal from [here](https://aka.ms/terminal).
-
 Open Windows terminal and install Git using the following command:
 
 ```PowerShell
