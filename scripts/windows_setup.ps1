@@ -7,13 +7,20 @@
 
 # Script should do:
 
-# 	Install Windows Terminal
-# 	Install New Powershell
-# 	Install WSL2
-# 	Install Nerdfont
-# 	Install VSCode
-# 	Create symlink for Windows Terminal settings.json
-# 	Create symlinks for gitconfig
+# 	Install Windows Terminal X
+# 	Install New Powershell X
+# 	Install WSL2 X
+# 	Install Nerdfont X
+# 	Install VSCode X
+# 	Create symlink for Windows Terminal settings.json X
+# 	Create symlinks for gitconfig X
+
+# TODO: Create a function for the symlink bs
+# TODO: Actually test the winget stuff
+# TODO: Write a loop which installs/checks for updates for all the programs in an array of strings
+# TODO: Check for winget presence and install it if it isn't there
+# TODO: Check for git presence and install it if it isn't there
+# TODO: Modify nerdfont installation function to take the userpath or something
 
 # * Functions
 
@@ -68,66 +75,118 @@ function InstallNerdFont {
 	Remove-Item -Path $fontExtractPath -Recurse
 }
 
-# * Main Script
-
-Write-Host "Starting Windows Setup..."
-
-Write-Host "Installing Windows Terminal"
-
-CheckWingetInstallation "Microsoft.WindowsTerminal"
-
-Write-Host "Installing New Microsoft PowerShell"
-
-CheckWingetInstallation "Microsoft.Powershell"
-
-Write-Host "Installing Nerd Fonts"
-
-InstallNerdFont "Hack" "v3.2.1"
-
-
-# Create symlink for Windows Terminal settings.json
-Write-Host "Creating symlink for Windows Terminal settings.json..."
-
-# Get the parent directory of the script
-$parent = Split-Path $script:MyInvocation.MyCommand.Path
-
-# Check if a username is provided as a command-line argument
-if ($args.Count -eq 0) {
-    # Prompt the user for a username
-    $USERNAME = Read-Host "Enter the username for installation (press Enter for current user)"
-    if (-not $USERNAME) {
-        $USER_LOCALAPPDATA = $env:LOCALAPPDATA
-    } else {
-        # Assuming C:\Users as the user directory
-        $USER_LOCALAPPDATA = "C:\Users\$USERNAME\AppData\Local"
-    }
-} else {
-    # Use the provided command-line argument as the username
-    $USER_LOCALAPPDATA = "C:\Users\$($args[0])\AppData\Local"
+function GetUser {
+	$validUser = $false
+	$currentUser = [Environment]::UserName
+	do {
+			$username = Read-Host "Enter the username for installation (press Enter for current user: $currentUser)"
+			if (-not $username) {
+					# If the user presses Enter, use the current user
+					$username = $currentUser
+					$validUser = $true
+			} else {
+					# Check if the user exists
+					try {
+							$userExists = Get-CimInstance -ClassName Win32_UserAccount | Where-Object { $_.Name -eq $username }
+							if ($userExists) {
+									$validUser = $true
+							} else {
+									Write-Host "User '$username' does not exist. Please try again."
+							}
+					} catch {
+							Write-Host "An error occurred while checking for the user. Please try again."
+					}
+			}
+	} while (-not $validUser)
+	return $username
 }
 
-$SOURCE_PATH = Join-Path $parent "config\settings.json"
-$TARGET_PATH = Join-Path $USER_LOCALAPPDATA "Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+# * Main Script
+
+# Use the function to get a valid username
+$username = GetUser
+
+# Set the local appdata directory for the selected user.
+$userLocalAppData = "C:\Users\$username\AppData\Local"
+
+# Set the user profile directory
+$userProfile = "C:\Users\$username\"
+
+# Get the full path of the currently running script
+$scriptPath = $MyInvocation.MyCommand.Path
+
+Write-Output $scriptPath
+
+# Get the parent directory of the script
+$parent = $scriptPath.replace("\scripts\windows_setup.ps1", "")
+
+# Set the config directory
+$configPath = Join-Path $parent "config"
+
+# Continue with the rest of the script using the $username
+Write-Host "Proceeding with installation for user: $username"
+# The rest of your script follows here, using $username where necessary
+
+# Write-Host "Starting Windows Setup..."
+
+# Write-Host "Installing Windows Terminal"
+
+# CheckWingetInstallation "Microsoft.WindowsTerminal"
+
+# Write-Host "Installing New Microsoft PowerShell"
+
+# CheckWingetInstallation "Microsoft.Powershell"
+
+# Write-Host "Installing Visual Studio Code"
+
+# CheckWingetInstallation "Microsoft.VisualStudioCode"
+
+# Fonts
+
+# Write-Host "Installing Nerd Fonts"
+
+# InstallNerdFont "Hack" "v3.2.1"
+
+
+# # Create symlink for Windows Terminal settings.json
+Write-Host "Creating symlink for Windows Terminal settings.json..."
+
+$wtSourcePath = Join-Path $configPath "settings.json"
+$wtTargetPath = Join-Path $userLocalAppData "Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
 
 # Delete the existing settings.json if it exists to avoid conflict
-if (Test-Path $TARGET_PATH) {
-    Remove-Item $TARGET_PATH
+if (Test-Path $wtTargetPath) {
+	# TODO: Should probably just create a .bak file instead of deleting 
+    Remove-Item $wtTargetPath
 }
 
 # Create a symbolic link to the settings.json file
-New-Item -ItemType SymbolicLink -Path $TARGET_PATH -Target $SOURCE_PATH
+New-Item -ItemType SymbolicLink -Path $wtTargetPath -Target $wtSourcePath
 
-# Check if VS Code is already installed and update if necessary
-Write-Host "Installing Visual Studio Code"
-CheckWingetInstallation "Microsoft.VisualStudioCode"
 
-# Install WSL2
-# Check if WSL is already installed by listing installed distributions
-$wslDistributions = wsl --list --quiet
-if ($wslDistributions) {
-    Write-Host "WSL is already installed. Installed distributions:"
-    Write-Host $wslDistributions
-} else {
-    Write-Host "Installing WSL2..."
-    wsl --install
+
+# Create symlink for .gitconfig
+Write-Host "Creating symlink for .gitconfig..."
+
+$gcSourcePath = Join-Path $configPath ".gitconfig"
+$gcTargetPath = Join-Path $userProfile ".gitconfig"
+
+# Delete the existing .gitconfig if it exists to avoid conflict
+if (Test-Path $gcTargetPath) {
+		# TODO: Should probably just create a .bak file instead of deleting 
+		Remove-Item $gcTargetPath
 }
+
+# Create a symbolic link to the .gitconfig file
+New-Item -ItemType SymbolicLink -Path $gcTargetPath -Target $gcSourcePath
+
+# # Install WSL2
+# # Check if WSL is already installed by listing installed distributions
+# $wslDistributions = wsl --list --quiet
+# if ($wslDistributions) {
+#     Write-Host "WSL is already installed. Installed distributions:"
+#     Write-Host $wslDistributions
+# } else {
+#     Write-Host "Installing WSL2..."
+#     wsl --install
+# }
