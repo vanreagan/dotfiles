@@ -4,7 +4,7 @@ $programList = @(
 	"Microsoft.WindowsTerminal",
 	"Microsoft.Powershell",
 	"Microsoft.VisualStudioCode",
-	"Git.Git",
+	"Git.Git"
 )
 
 $driveLetter = "C"
@@ -137,10 +137,10 @@ if (-not $wingetInstalled) {
 $username = GetUser
 
 # Set the local appdata directory for the selected user.
-$userLocalAppData = "$driveLetter:\Users\$username\AppData\Local"
+$userLocalAppData = "${driveLetter}:\Users\$username\AppData\Local"
 
 # Set the user profile directory
-$userProfile = "$driveLetter:\Users\$username\"
+$userProfile = "${driveLetter}:\Users\$username\"
 
 # Get the full path of the currently running script
 $scriptPath = $MyInvocation.MyCommand.Path
