@@ -32,30 +32,42 @@ function InstallNerdFont {
 	$fontZipPath = "$userProfile\Downloads\$nerdFontName.zip"
 	$fontExtractPath = "$userProfile\Downloads\$nerdFontName"
 
-	Write-Host "Downloading Nerd Font..."
-	Invoke-WebRequest -Uri $nerdFontUrl -OutFile $fontZipPath
+	# Define the path where fonts are typically installed
+	$fontsPath = "$env:WINDIR\Fonts"
 
-	# Extract Nerd Font
-	Write-Host "Extracting Nerd Font..."
-	Expand-Archive -Path $fontZipPath -DestinationPath $fontExtractPath
+	# Define the expected font file name (assuming TTF format)
+	$fontFileName = "$nerdFontName Nerd Font.ttf"
 
-	# Install Nerd Font
-	Write-Host "Installing Nerd Font..."
-	$fontFiles = Get-ChildItem -Path $fontExtractPath -Filter *.ttf
-	foreach ($fontFile in $fontFiles) {
-		Copy-Item -Path $fontFile.FullName -Destination "$env:SystemRoot\Fonts"
-		$fontRegKey = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
-		$fontRegValueName = [System.IO.Path]::GetFileNameWithoutExtension($fontFile.Name)
-		$fontRegValue = $fontFile.Name
-		Set-ItemProperty -Path $fontRegKey -Name $fontRegValueName -Value $fontRegValue
+	# Check if the font is already installed
+	if (Test-Path (Join-Path $fontsPath $fontFileName)) {
+			Write-Host "$nerdFontName is already installed."
+	} else {
+		Write-Host "Downloading Nerd Font..."
+		Invoke-WebRequest -Uri $nerdFontUrl -OutFile $fontZipPath
+	
+		# Extract Nerd Font
+		Write-Host "Extracting Nerd Font..."
+		Expand-Archive -Path $fontZipPath -DestinationPath $fontExtractPath
+	
+		# Install Nerd Font
+		Write-Host "Installing Nerd Font..."
+		$fontFiles = Get-ChildItem -Path $fontExtractPath -Filter *.ttf
+		foreach ($fontFile in $fontFiles) {
+			Copy-Item -Path $fontFile.FullName -Destination "$env:SystemRoot\Fonts"
+			$fontRegKey = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+			$fontRegValueName = [System.IO.Path]::GetFileNameWithoutExtension($fontFile.Name)
+			$fontRegValue = $fontFile.Name
+			Set-ItemProperty -Path $fontRegKey -Name $fontRegValueName -Value $fontRegValue
+		}
+	
+		Write-Host "Nerd Font installation complete."
+	
+		# Clean up
+		Write-Host "Cleaning up..."
+		Remove-Item -Path $fontZipPath
+		Remove-Item -Path $fontExtractPath -Recurse
 	}
 
-	Write-Host "Nerd Font installation complete."
-
-	# Clean up
-	Write-Host "Cleaning up..."
-	Remove-Item -Path $fontZipPath
-	Remove-Item -Path $fontExtractPath -Recurse
 }
 
 function GetUser {
