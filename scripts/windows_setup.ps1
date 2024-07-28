@@ -1,47 +1,4 @@
-
-# Check if winget is installed
-$wingetInstalled = Get-Command winget -ErrorAction SilentlyContinue
-
-# If winget is not installed prompt the user to install it and exit the script
-
-if (-not $wingetInstalled) {
-	Write-Host "winget is not installed. Please install winget and run the script again."
-	Write-Host "You can install winget from https://apps.microsoft.com/detail/9nblggh4nns1"
-
-	# Pause the script
-	Pause
-
-	# Exit the script
-	Exit
-}
-
-
-
-
-# * Main Script
-
-# Use the function to get a valid username
-$username = GetUser
-
-# Set the local appdata directory for the selected user.
-$userLocalAppData = "C:\Users\$username\AppData\Local"
-
-# Set the user profile directory
-$userProfile = "C:\Users\$username\"
-
-# Get the full path of the currently running script
-$scriptPath = $MyInvocation.MyCommand.Path
-
-Write-Output $scriptPath
-
-# Get the parent directory of the script
-$parent = $scriptPath.replace("\scripts\windows_setup.ps1", "")
-
-# Set the config directory
-$configPath = Join-Path $parent "config"
-
-# Continue with the rest of the script using the $username
-Write-Host "Proceeding with installation for user: $username"
+# * Config
 
 $programList = @(
 	"Microsoft.WindowsTerminal",
@@ -50,35 +7,7 @@ $programList = @(
 	"Git.Git",
 )
 
-
-InstallWingetList $programList
-
-# Fonts
-
-Write-Host "Installing Nerd Fonts"
-
-InstallNerdFont "Hack" "v3.2.1"
-
-
-# # Create symlinks
-$wtLocalState = Join-Path $userLocalAppData "Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState"
-
-CreateSymlink "settings.json" $wtLocalState
-
-CreateSymlink ".gitconfig" $userProfile
-
-
-
-# # Install WSL2
-# Check if WSL is already installed by listing installed distributions
-$wslDistributions = wsl --list --quiet
-if ($wslDistributions) {
-    Write-Host "WSL is already installed. Installed distributions:"
-    Write-Host $wslDistributions
-} else {
-    Write-Host "Installing WSL2..."
-    wsl --install
-}
+$driveLetter = "C"
 
 # * Functions
 
@@ -95,7 +24,8 @@ function InstallWithWinget {
 function InstallNerdFont {
 	param(
 		[string]$nerdFontName,
-		[string]$nerdFontVersion
+		[string]$nerdFontVersion,
+		[string]$userProfile
 	)
 
 	$nerdFontUrl = "https://github.com/ryanoasis/nerd-fonts/releases/download/$nerdFontVersion/$nerdFontName.zip"
@@ -184,3 +114,83 @@ function InstallWingetList {
 		InstallWithWinget $program
 	}
 }
+
+# * Initial Setup
+
+# Check if winget is installed
+$wingetInstalled = Get-Command winget -ErrorAction SilentlyContinue
+
+# If winget is not installed prompt the user to install it and exit the script
+
+if (-not $wingetInstalled) {
+	Write-Host "winget is not installed. Please install winget and run the script again."
+	Write-Host "You can install winget from https://apps.microsoft.com/detail/9nblggh4nns1"
+
+	# Pause the script
+	Pause
+
+	# Exit the script
+	Exit
+}
+
+# Use the function to get a valid username
+$username = GetUser
+
+# Set the local appdata directory for the selected user.
+$userLocalAppData = "$driveLetter:\Users\$username\AppData\Local"
+
+# Set the user profile directory
+$userProfile = "$driveLetter:\Users\$username\"
+
+# Get the full path of the currently running script
+$scriptPath = $MyInvocation.MyCommand.Path
+
+# Get the parent directory of the script
+$parent = $scriptPath.replace("\scripts\windows_setup.ps1", "")
+
+# Set the config directory
+$configPath = Join-Path $parent "config"
+
+# * Main Script
+
+Write-Host "Proceeding with installation for user: $username"
+
+
+# # Winget Install
+
+InstallWingetList $programList
+
+
+# # Font Install
+
+Write-Host "Installing Nerd Fonts"
+
+InstallNerdFont "Hack" "v3.2.1" $userProfile
+
+
+# # Symlink Creation
+
+$wtLocalState = Join-Path $userLocalAppData "Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState"
+
+CreateSymlink "settings.json" $wtLocalState
+CreateSymlink ".gitconfig" $userProfile
+
+
+
+# # WSL2 Install
+
+# Check if WSL is already installed by listing installed distributions
+$wslDistributions = wsl --list --quiet
+if ($wslDistributions) {
+    Write-Host "WSL is already installed. Installed distributions:"
+    Write-Host $wslDistributions
+} else {
+    Write-Host "Installing WSL2..."
+    wsl --install
+}
+
+# Finish
+Write-Host "Setup complete. Please restart your computer to apply changes."
+
+# Pause the script
+Pause
