@@ -8,6 +8,9 @@ if (-not $wingetInstalled) {
 	Write-Host "winget is not installed. Please install winget and run the script again."
 	Write-Host "You can install winget from https://apps.microsoft.com/detail/9nblggh4nns1"
 
+	# Pause the script
+	Pause
+
 	# Exit the script
 	Exit
 }
@@ -40,12 +43,13 @@ $configPath = Join-Path $parent "config"
 # Continue with the rest of the script using the $username
 Write-Host "Proceeding with installation for user: $username"
 
-$programList = [
+$programList = @(
 	"Microsoft.WindowsTerminal",
 	"Microsoft.Powershell",
 	"Microsoft.VisualStudioCode",
 	"Git.Git",
-]
+)
+
 
 InstallWingetList $programList
 
