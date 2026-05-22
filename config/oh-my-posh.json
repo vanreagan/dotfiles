@@ -19,99 +19,62 @@
     "terminal-black": "#414868",
     "t-background": "p:main-bg"
   },
+  "secondary_prompt": {
+    "background": "transparent",
+    "foreground": "p:terminal-blue",
+    "template": "\u279c "
+  },
+  "transient_prompt": {
+    "background": "transparent",
+    "foreground": "#c0caf5",
+    "template": "\ue285 "
+  },
+  "final_space": true,
+  "version": 4,
+  "terminal_background": "p:t-background",
   "blocks": [
     {
       "alignment": "left",
       "segments": [
         {
-          "type": "text",
+          "foreground": "#CBA6F7",
           "style": "plain",
-          "background": "transparent",
-          "foreground": "p:terminal-blue",
-          "template": "\u279c "
+          "template": "<#9370DB>\u250f[</>vanreagan<#9370DB>]</>",
+          "type": "session"
         },
         {
-          "type": "path",
-          "style": "plain",
-          "foreground": "p:terminal-magenta",
-          "properties": {
-            "style": "folder"
-          },
-          "template": "<b>{{ .Path }}</b> <p:light-sky-blue>\u26a1</>"
-        },
-        {
-          "type": "git",
-          "style": "plain",
-          "foreground": "p:light-sky-blue",
-          "foreground_templates": [
-            "{{ if or (.Working.Changed) (.Staging.Changed) }}p:terminal-red{{ end }}",
-            "{{ if and (gt .Ahead 0) (gt .Behind 0)}}p:light-sky-blue {{ end }}",
-            "{{ if gt .Ahead 0 }}p:terminal-blue{{ end }}",
-            "{{ if gt .Behind 0 }}p:celeste-blue{{ end }}"
-          ],
-          "template": "({{ .HEAD}})",
-          "properties": {
+          "foreground": "#F5C2E7",
+          "options": {
             "fetch_status": true,
-            "branch_icon": "\ue725 "
-          }
+            "fetch_upstream_icon": true
+          },
+          "style": "plain",
+          "template": "<#9370DB>--[</>{{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }}<#F28FAD> \u25cf </>{{ end }}{{ if .Staging.Changed }}<#CBA6F7> \u25cf </>{{ end }}<#9370DB>]</>",
+          "type": "git"
         },
         {
-          "type": "status",
+          "foreground": "#F5C2E7",
           "style": "plain",
-          "foreground": "p:terminal-red",
-          "template": " \uf00d"
-        }
-      ],
-      "type": "prompt"
-    },
-    {
-      "alignment": "right",
-      "overflow": "hide",
-      "segments": [
-        {
-          "type": "node",
-          "style": "plain",
-          "foreground": "p:pistachio-green",
-          "template": "\ue718 {{ .Full }} "
+          "template": "<#9370DB>--[</>{{.Profile}}{{if .Region}}@{{.Region}}{{end}}<#9370DB>]</>",
+          "type": "aws"
         },
         {
-          "type": "php",
+          "foreground": "#F5C2E7",
           "style": "plain",
-          "foreground": "p:terminal-blue",
-          "template": "\ue73d {{ .Full }} "
+          "template": "<#9370DB>--[</>{{.Context}}{{if .Namespace}} :: {{.Namespace}}{{end}}<#9370DB>]</>",
+          "type": "kubectl"
         },
         {
-          "type": "python",
+          "foreground": "#d8dee9",
           "style": "plain",
-          "foreground": "p:terminal-yellow",
-          "template": "\uE235 {{ .Full }}"
+          "template": "<#9370DB>[</>\uf0e7<#9370DB>]</>",
+          "type": "root"
         },
         {
-          "type": "julia",
+          "foreground": "#d8dee9",
           "style": "plain",
-          "foreground": "p:terminal-magenta",
-          "template": "\uE624 {{ .Full }}"
-        },
-        {
-          "type": "ruby",
-          "style": "plain",
-          "foreground": "p:terminal-red",
-          "template": "\uE791 {{ .Full}}"
-        },
-        {
-          "type": "go",
-          "style": "plain",
-          "foreground": "p:light-sky-blue",
-          "template": "\uFCD1 {{ .Full}}"
-        },
-        {
-          "type": "command",
-          "style": "plain",
-          "foreground": "p:white-blue",
-          "properties": {
-            "command": "git log --pretty=format:%cr -1 || date +%H:%M:%S",
-            "shell": "bash"
-          }
+          "template": "<#9370DB>[x</>{{ reason .Code }}<#9370DB>]</>",
+          "type": "status"
         }
       ],
       "type": "prompt"
@@ -121,26 +84,29 @@
       "newline": true,
       "segments": [
         {
-          "foreground": "p:pistachio-green",
+          "foreground": "#CBA6F7",
+          "options": {
+            "style": "full"
+          },
           "style": "plain",
-          "template": "\u25b6",
+          "template": "<#9370DB>\u2516[</>{{ .Path }}<#9370DB>]</>",
+          "type": "path"
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "foreground": "#9370DB",
+          "style": "plain",
+          "template": " \ue602 ",
           "type": "text"
         }
       ],
       "type": "prompt"
     }
-  ],
-  "secondary_prompt": {
-    "background": "transparent",
-    "foreground": "p:terminal-blue",
-    "template": "\u279c "
-  },
-  "transient_prompt": {
-    "background": "transparent",
-    "foreground": "p:terminal-blue",
-    "template": "\u279c "
-  },
-  "final_space": true,
-  "version": 2,
-  "terminal_background": "p:t-background"
+  ]
 }
